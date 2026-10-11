@@ -1,0 +1,64 @@
+alias: Mark PC LED
+description: "Steuert Schreibtisch-LEDs und Nanoleaf basierend auf dem PC-Status."
+triggers:
+  # Auslöser 1: Reagiert, wenn der PC-Status auf "up" (eingeschaltet/aktiv) wechselt
+  - trigger: state
+    entity_id:
+      - sensor.desktop_mark_jarvis_status_2
+    to:
+      - up
+    from: null
+    id: generated-ytFl
+
+  # Auslöser 2: Reagiert, wenn der PC-Status auf "down" (ausgeschaltet) wechselt
+  - trigger: state
+    entity_id:
+      - sensor.desktop_mark_jarvis_status_2
+    to:
+      - down
+    from: null
+    id: generated-Ws5k
+
+conditions: [] # Keine zusätzlichen Bedingungen erforderlich
+
+actions:
+  - choose:
+      # Bedingung für den ersten Auslöser (PC ist hochgefahren)
+      - conditions:
+          - condition: trigger
+            id:
+              - generated-ytFl
+        sequence:
+          # Schaltet das Gerät (LEDs) über die Device-ID ein
+          - action: light.turn_on
+            metadata: {}
+            target:
+              device_id: 51b5ae9f803b7859dc18732386b5afee
+            data: {}
+          # Schaltet das Nanoleaf ein
+          - action: light.turn_on
+            metadata: {}
+            target:
+              entity_id: light.nanoleaf
+            data: {}
+
+      # Bedingung für den zweiten Auslöser (PC ist heruntergefahren)
+      - conditions:
+          - condition: trigger
+            id:
+              - generated-Ws5k
+        sequence:
+          # Schaltet das Nanoleaf aus
+          - action: light.turn_off
+            metadata: {}
+            target:
+              entity_id: light.nanoleaf
+            data: {}
+          # Schaltet das Gerät (LEDs) über die Device-ID aus
+          - action: light.turn_off
+            metadata: {}
+            target:
+              device_id: 51b5ae9f803b7859dc18732386b5afee
+            data: {}
+
+mode: single # Sorgt dafür, dass die Automatisierung nicht mehrfach gleichzeitig startet, falls der Status kurz nacheinander wechselt
